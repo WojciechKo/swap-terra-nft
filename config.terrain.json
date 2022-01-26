@@ -31,7 +31,7 @@
   "testnet": {
     "_connection": {
       "chainID": "bombay-12",
-      "URL": "https://bombay-lcd.terra.dev"
+      "URL": "http://167.99.25.150:1317"
     }
   },
   "localterra": {
