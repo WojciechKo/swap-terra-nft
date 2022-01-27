@@ -1,16 +1,19 @@
-use cosmwasm_std::StdError;
-#[cfg(not(feature = "library"))]
 use cosmwasm_std::{
-    entry_point, to_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    entry_point, to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response,
+    StdError, StdResult, WasmMsg,
 };
 use cw2::set_contract_version;
+use cw721::{
+    Cw721ExecuteMsg::{Approve, TransferNft},
+    Expiration,
+};
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, SwapResponse};
 use crate::state::{Config, Swap, CONFIG, SWAPS};
 
 // version info for migration info
-const CONTRACT_NAME: &str = "crates.io:counter";
+const CONTRACT_NAME: &str = "crates.io:swaps";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -33,7 +36,7 @@ pub fn instantiate(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
@@ -41,20 +44,21 @@ pub fn execute(
         ExecuteMsg::CreateSwap {
             collection,
             token_id,
-        } => try_create_swap(deps, info, collection, token_id),
-        ExecuteMsg::CancelSwap { swap_id } => try_cancel_swap(deps, info, swap_id),
+        } => try_create_swap(deps, env, info, collection, token_id),
+        ExecuteMsg::CancelSwap { swap_id } => try_cancel_swap(deps, env, info, swap_id),
     }
 }
 
 pub fn try_create_swap(
     deps: DepsMut,
+    env: Env,
     info: MessageInfo,
-    collection_address: Addr,
+    collection: Addr,
     token_id: String,
 ) -> Result<Response, ContractError> {
     let data = Swap {
         owner: info.sender.clone(),
-        collection: collection_address,
+        collection: collection,
         token_id: token_id,
     };
 
@@ -68,16 +72,36 @@ pub fn try_create_swap(
 
     Ok(Response::new()
         .add_attribute("method", "create_swap")
-        .add_attribute("swap_id", swap_id.to_string()))
+        .add_attribute("swap_id", swap_id.to_string())
+        .add_messages(vec![
+            CosmosMsg::Wasm(WasmMsg::Execute {
+                contract_addr: data.collection.to_string(),
+                funds: vec![],
+                msg: to_binary(&Approve {
+                    spender: env.contract.address.to_string(),
+                    token_id: data.token_id.clone(),
+                    expires: Some(Expiration::AtHeight(env.block.height + 20000)),
+                })?,
+            }),
+            CosmosMsg::Wasm(WasmMsg::Execute {
+                contract_addr: data.collection.to_string(),
+                funds: vec![],
+                msg: to_binary(&TransferNft {
+                    recipient: env.contract.address.to_string(),
+                    token_id: data.token_id.clone(),
+                })?,
+            }),
+        ]))
 }
 
 pub fn try_cancel_swap(
     deps: DepsMut,
+    _env: Env,
     _info: MessageInfo,
     swap_id: String,
 ) -> Result<Response, ContractError> {
-    match SWAPS.load(deps.storage, swap_id.clone()) {
-        Ok(_) => (),
+    let swap = match SWAPS.load(deps.storage, swap_id.clone()) {
+        Ok(swap) => swap,
         Err(_) => {
             return Err(ContractError::SwapNotFound {});
         }
@@ -85,7 +109,16 @@ pub fn try_cancel_swap(
 
     SWAPS.remove(deps.storage, swap_id.clone());
 
-    Ok(Response::new().add_attribute("method", "cancel_swap"))
+    Ok(Response::new()
+        .add_attribute("method", "cancel_swap")
+        .add_messages(vec![CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: swap.collection.to_string(),
+            funds: vec![],
+            msg: to_binary(&TransferNft {
+                recipient: swap.owner.to_string(),
+                token_id: swap.token_id.clone(),
+            })?,
+        })]))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]

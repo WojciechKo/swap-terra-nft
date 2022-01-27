@@ -3,8 +3,8 @@ use std::fs::create_dir_all;
 
 use cosmwasm_schema::{export_schema, remove_schemas, schema_for};
 
-use counter::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, SwapResponse};
-use counter::state::{Config, Swap};
+use swaps::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, SwapResponse};
+use swaps::state::{Config, Swap};
 
 fn main() {
     let mut out_dir = current_dir().unwrap();

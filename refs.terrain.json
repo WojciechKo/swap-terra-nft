@@ -1,6 +1,6 @@
 {
   "testnet": {
-    "counter": {
+    "swaps": {
       "codeId": "37264",
       "contractAddresses": {
         "default": "terra1e0hmc2kt540mjv6374jldt4mmuvupkkvncxry7"
