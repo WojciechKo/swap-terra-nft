@@ -1,9 +1,9 @@
 {
   "testnet": {
     "swaps": {
-      "codeId": "37264",
+      "codeId": "37911",
       "contractAddresses": {
-        "default": "terra1e0hmc2kt540mjv6374jldt4mmuvupkkvncxry7"
+        "default": "terra1n9uz0zufumntcwzdhvp9wgtgwquar9uxwyrhed"
       }
     }
   }

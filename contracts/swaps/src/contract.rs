@@ -169,7 +169,7 @@ mod tests {
     #[test]
     fn create_swap() -> Result<(), String> {
         // Initialization
-        let mut deps = mock_dependencies(&coins(2, "token"));
+        let mut deps = mock_dependencies(&[]);
         let msg = InstantiateMsg {};
         let creator_info = mock_info("creator", &coins(2, "token"));
         let _res = instantiate(deps.as_mut(), mock_env(), creator_info, msg);
@@ -212,7 +212,7 @@ mod tests {
     #[test]
     fn cancel_swap() -> Result<(), String> {
         // Initialization
-        let mut deps = mock_dependencies(&coins(2, "token"));
+        let mut deps = mock_dependencies(&[]);
         let msg = InstantiateMsg {};
         let info = mock_info("creator", &coins(2, "token"));
         instantiate(deps.as_mut(), mock_env(), info.clone(), msg).unwrap();
