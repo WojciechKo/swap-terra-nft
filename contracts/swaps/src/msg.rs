@@ -8,8 +8,13 @@ pub struct InstantiateMsg {}
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg {
-    CreateSwap { collection: Addr, token_id: String },
-    CancelSwap { swap_id: String },
+    CreateSwap {
+        collection: String,
+        token_id: String,
+    },
+    CancelSwap {
+        swap_id: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
