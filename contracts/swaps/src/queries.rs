@@ -13,8 +13,7 @@ pub fn get_swap(deps: Deps, swap_id: String) -> StdResult<SwapResponse> {
     };
 
     Ok(SwapResponse {
-        owner: swap.owner,
-        collection: swap.collection,
-        token_id: swap.token_id,
+        lhs: swap.lhs,
+        rhs: swap.rhs
     })
 }

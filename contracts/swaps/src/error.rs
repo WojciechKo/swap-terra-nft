@@ -10,8 +10,11 @@ pub enum ContractError {
     Unauthorized {},
 
     #[error("InvalidCollectionAddress")]
-    InvalidAddress {address: String},
+    InvalidAddress { address: String },
 
     #[error("SwapNotFound")]
     SwapNotFound {},
+
+    #[error("SwapNotResponded")]
+    SwapNotResponded {},
 }

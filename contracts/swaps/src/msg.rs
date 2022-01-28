@@ -1,4 +1,4 @@
-use cosmwasm_std::Addr;
+use crate::state::SwapSide;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -8,9 +8,17 @@ pub struct InstantiateMsg {}
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg {
-    CreateSwap {
+    InitiateSwap {
         collection: String,
         token_id: String,
+    },
+    SwapReply {
+        swap_id: String,
+        collection: String,
+        token_id: String,
+    },
+    FinalizeSwap {
+        swap_id: String,
     },
     CancelSwap {
         swap_id: String,
@@ -26,7 +34,6 @@ pub enum QueryMsg {
 // We define a custom struct for each query response
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct SwapResponse {
-    pub owner: Addr,
-    pub collection: Addr,
-    pub token_id: String,
+    pub lhs: SwapSide,
+    pub rhs: Option<SwapSide>,
 }

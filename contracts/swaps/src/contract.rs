@@ -3,7 +3,7 @@ use cosmwasm_std::{
 };
 
 use crate::error::ContractError;
-use crate::executions::{cancel_swap, create_swap, initialize};
+use crate::executions::{cancel_swap, finalize_swap, initialize, initiate_swap, swap_reply};
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::queries::get_swap;
 
@@ -25,10 +25,16 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::CreateSwap {
+        ExecuteMsg::InitiateSwap {
             collection,
             token_id,
-        } => create_swap(deps, env, info, collection, token_id),
+        } => initiate_swap(deps, env, info, collection, token_id),
+        ExecuteMsg::SwapReply {
+            swap_id,
+            collection,
+            token_id,
+        } => swap_reply(deps, env, info, swap_id, collection, token_id),
+        ExecuteMsg::FinalizeSwap { swap_id } => finalize_swap(deps, env, info, swap_id),
         ExecuteMsg::CancelSwap { swap_id } => cancel_swap(deps, env, info, swap_id),
     }
 }

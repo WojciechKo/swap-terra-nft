@@ -6,6 +6,12 @@ use cw_storage_plus::{Item, Map};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct Swap {
+    pub lhs: SwapSide,
+    pub rhs: Option<SwapSide>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct SwapSide {
     pub owner: Addr,
     pub collection: Addr,
     pub token_id: String,
